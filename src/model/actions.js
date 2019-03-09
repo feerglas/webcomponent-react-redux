@@ -1,10 +1,10 @@
 import { actionTypes } from './constants';
 
-export const date = date => (dispatch) => {
+export const language = language => (dispatch) => {
 	dispatch(
 		{
-			type: actionTypes.date,
-			payload: date
+			type: actionTypes.language,
+			payload: language
 		}
 	);
 };

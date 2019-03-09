@@ -1,9 +1,9 @@
 import { combineReducers } from 'redux';
 import { actionTypes } from './constants';
 
-const date = (state = '', action) => {
+const language = (state = 'de', action) => {
 	switch (action.type) {
-		case actionTypes.date:
+		case actionTypes.language:
 			return action.payload || state;
 		default:
 			return state;
@@ -11,5 +11,5 @@ const date = (state = '', action) => {
 };
 
 export default combineReducers({
-	date
+	language
 });

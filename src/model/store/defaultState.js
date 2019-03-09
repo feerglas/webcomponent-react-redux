@@ -1,5 +1,5 @@
 const state = {
-	date: ''
+	language: 'de'
 };
 
 export default state;

@@ -1,3 +1,3 @@
 export const actionTypes = {
-	date: 'date'
+	language: 'language'
 };
