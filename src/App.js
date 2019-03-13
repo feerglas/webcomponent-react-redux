@@ -84,7 +84,7 @@ class App extends Component {
 				>
 				</sbb-deeplink-teasers>
 
-				<sbb-footer>
+				<sbb-footer role='contentinfo' footertitle='Fusszeile'>
 
 					<sbb-footer-columns>
 						<sbb-footer-column>
@@ -125,8 +125,10 @@ class App extends Component {
 						</sbb-footer-column>
 					</sbb-footer-columns>
 
-					<sbb-language-selector language={this.props.language} ref={this.footerRef}></sbb-language-selector>
-					<sbb-footer-links-bottom></sbb-footer-links-bottom>
+					<sbb-footer-bottom>
+						<sbb-language-selector language={this.props.language} ref={this.footerRef}></sbb-language-selector>
+						<sbb-footer-links-bottom></sbb-footer-links-bottom>
+					</sbb-footer-bottom>
 				</sbb-footer>
 			</div>
 		);
