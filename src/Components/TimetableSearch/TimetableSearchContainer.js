@@ -15,9 +15,6 @@ const mapDispatchToProps = dispatch => ({
 	},
 	setAutocompleteDestination(callback) {
 		dispatch(autocompleteDestination(callback));
-	},
-	timetableSearch(form, to) {
-
 	}
 });
 
