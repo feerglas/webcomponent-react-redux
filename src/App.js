@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import image1 from './homepage_crosslinks/1.jpg';
-import image2 from './homepage_crosslinks/2.jpg';
-import image3 from './homepage_crosslinks/3.jpg';
-import image4 from './homepage_crosslinks/4.jpg';
-import image5 from './homepage_crosslinks/5.jpg';
-import image6 from './homepage_crosslinks/6.jpg';
+import TimetableSearch from './Components/TimetableSearch/TimetableSearchContainer';
+import TimetableResults from './Components/TimetableResults/TimetableResultsContainer';
+import { navItems, deeplinkItems } from './data/data';
+import axios from 'axios';
 
 class App extends Component {
 
@@ -14,16 +12,17 @@ class App extends Component {
 
 		this.handleLangSwitch = this.handleLangSwitch.bind(this);
 		this.footerRef = React.createRef();
-
-		this.deeplinkItems = `[ { "image": "${image1}", "title": "Günstig in der 1. Klasse nach Paris.", "text": "Reisen Sie direkt und bequem mitten ins Herz von Paris und lassen Sie sich an den Ufern der Seine verzaubern. Nicht verpassen: Noch bis zum 7. April sparen Sie dabei 30 Franken in der 1. Klasse!", "link": { "title": "Mehr info", "link": "#"} }, { "image": "${image2}", "title": "SwissPass - Ihr Schlüssel für Mobilität und Freizeit.", "text": "Rauf auf die Piste, rein ins Schneevergnügen. Laden Sie Ihren Skipass ganz einfach auf den SwissPass.", "link": { "title": "Mehr info", "link": "#"} }, { "image": "${image3}", "title": "Per WhatsApp noch schneller informiert.", "text": "Abonnieren Sie jetzt SBB WhatsApp und wir senden Ihnen regelmässig besonders günstige Angebote und Reisetipps für die Schweiz und unsere Nachbarländer.", "link": { "title": "Mehr info", "link": "#"} }, { "image": "${image4}", "title": "Spass im Schnee mit Snow’n’Rail.", "text": "Winterfreunde aufgepasst: Vom 1. März bis Saisonende sparen Sie beim Onlinekauf 20% auf die Reise mit dem ÖV in zahlreiche beliebte Skigebiete.", "link": { "title": "Mehr info", "link": "#"} }, { "image": "${image5}", "title": "Setzen Sie sich an die Spitze des Zuges.", "text": "Sie wollen Verantwortung übernehmen und Grosses bewegen? Informieren Sie sich jetzt über die bezahlte Zweitausbildung zur Lokführerin oder zum Lokführer.", "link": { "title": "Mehr info", "link": "#"} }, { "image": "${image6}", "title": "Gepäcklos unbeschwert in die Winterferien.", "text": "So einfach geht’s: Wir holen Ihr Gepäck bei Ihnen zuhause ab und liefern es direkt in Ihre Ferienunterkunft. Für ausgewählte Wintersportorte jetzt zu attraktiven Pauschalpreisen.", "link": { "title": "Mehr info", "link": "#"} } ]`;
+		this.timetableResultsRef = React.createRef();
+		this.CancelToken = axios.CancelToken;
+		this.cancelRequest = false;
 	}
 
 	componentDidMount() {
-		this.footerRef.current.addEventListener('sbb-footer.language_switch', this.handleLangSwitch);
+		this.footerRef.current.addEventListener('sbb-language-selector_language-switch', this.handleLangSwitch);
 	}
 
 	componentWillUnmount() {
-		this.footerRef.current.removeEventListener('sbb-footer.language_switch', this.handleLangSwitch);
+		this.footerRef.current.removeEventListener('sbb-language-selector_language-switch', this.handleLangSwitch);
 	}
 
 	handleLangSwitch(evt) {
@@ -32,25 +31,103 @@ class App extends Component {
 		window.scrollTo(0, 0);
 	}
 
+	handleSearch(from, to) {
+		this.cancelRequest && this.cancelRequest();
+
+		axios
+			.get(`https://global-warmer.com/sbb/from/${from.id}/to/${to.id}`, {
+				cancelToken: this.CancelToken(function executor (c) {
+					this.cancelRequest = c;
+				}.bind(this))
+			})
+			.then((res) => {
+
+				if (!res.data && !res.data.trips) {
+					return;
+				}
+
+				this.props.setResults(res.data.trips);
+				this.props.setTitleFrom(from.label);
+				this.props.setTitleTo(to.label);
+
+			})
+			.catch((err) => {
+				console.log('Error requesting Trips: ', err);
+			});
+
+	}
+
 	render() {
 		return (
 			<div>
 				<sbb-global-styles></sbb-global-styles>
 				<sbb-webfonts></sbb-webfonts>
-				<sbb-header language={this.props.language} items='{"de": [{ "title": "Fahrplan", "link": "#"}, { "title": "Abos & Billete", "link": "#"}, { "title": "Bahnhof & Services", "link": "#"}, { "title": "Geschäftskunden", "link": "#"}, { "title": "Freizeit & Ferien", "link": "#"}], "fr": [{ "title": "Horaire", "link": "#"}, { "title": "Abonnements et billets", "link": "#"}, { "title": "Gare et servicesa", "link": "#"}, { "title": "Clientèle commerciale", "link": "#"}, { "title": "Loisirs et vacances", "link": "#"}], "en": [{ "title": "Timetable", "link": "#"}, { "title": "Travelcards & tickets", "link": "#"}, { "title": "Station & services", "link": "#"}, { "title": "Business customers", "link": "#"}, { "title": "Leisure & holidays", "link": "#"}], "it": [{ "title": "Orario", "link": "#"}, { "title": "Abonamenti e biglietti", "link": "#"}, { "title": "Stazione e servizi", "link": "#"}, { "title": "Clientela aziendale", "link": "#"}, { "title": "Tempo libero e vacanze", "link": "#"}]}'></sbb-header>
-				<sbb-timetable-search></sbb-timetable-search>
-				<sbb-timetable-results></sbb-timetable-results>
+				<sbb-header role='banner' language={this.props.language} items={navItems}></sbb-header>
+				<sbb-pagetitle additional-classes='var_centered' visuallyhidden='true' page-title='Startseite sbb.ch'></sbb-pagetitle>
+
+				<TimetableSearch searchCallback={this.handleSearch.bind(this)} />
+
+				<sbb-timetable-results-title
+					from={this.props.titleFrom}
+					to={this.props.titleTo}
+				></sbb-timetable-results-title>
+
+				<TimetableResults />
+
 				<sbb-homepage-main-teaser></sbb-homepage-main-teaser>
 
 				<sbb-heading text='Rund um die SBB.' level='2'></sbb-heading>
 
 				<sbb-deeplink-teasers
 					titles-level='3'
-					items={this.deeplinkItems}
+					items={deeplinkItems}
 				>
 				</sbb-deeplink-teasers>
 
-				<sbb-footer language={this.props.language} uselinks='false' ref={this.footerRef}></sbb-footer>
+				<sbb-footer>
+
+					<sbb-footer-columns>
+						<sbb-footer-column>
+							<sbb-footer-column-title columntitle='Kontakt'></sbb-footer-column-title>
+							<sbb-footer-column-rte>
+								<p>Haben Sie Fragen? Wir helfen Ihnen gerne. Bitte lesen Sie auch unsere Erklärung zum <a href='/de/meta/legallines/datenschutz.html'>Datenschutz</a>.</p>
+							</sbb-footer-column-rte>
+						</sbb-footer-column>
+						<sbb-footer-column>
+							<sbb-footer-column-title columntitle='Bahnverkehrsinformationen'></sbb-footer-column-title>
+							<sbb-footer-column-rte>
+								<p>Informationen über die aktuelle Betriebslage und Störungen auf dem Schweizer Schienennetz und über wichtige Behinderungen und Streiks im Ausland.</p>
+							</sbb-footer-column-rte>
+						</sbb-footer-column>
+						<sbb-footer-column>
+							<sbb-footer-column-title columntitle='Newsletter & Social Media'></sbb-footer-column-title>
+							<sbb-footer-column-rte>
+								<p>Jeden Monat über Angebote und Neuigkeiten informiert sein.</p>
+							</sbb-footer-column-rte>
+							<sbb-footer-column-link-list>
+								<sbb-footer-column-link-list-item external='true' label='Facebook' href='https://company.sbb.ch/de/home.html'></sbb-footer-column-link-list-item>
+								<sbb-footer-column-link-list-item external='true' label='Twitter' href='https://company.sbb.ch/de/immobilien.html'></sbb-footer-column-link-list-item>
+								<sbb-footer-column-link-list-item external='true' label='YouTube' href='http://company.sbb.ch/de/home.html'></sbb-footer-column-link-list-item>
+								<sbb-footer-column-link-list-item external='true' label='Instagram' href='http://company.sbb.ch/de/home.html'></sbb-footer-column-link-list-item>
+								<sbb-footer-column-link-list-item label='SBB News' href='http://company.sbb.ch/de/home.html'></sbb-footer-column-link-list-item>
+								<sbb-footer-column-link-list-item label='SBB Community' href='http://company.sbb.ch/de/home.html'></sbb-footer-column-link-list-item>
+							</sbb-footer-column-link-list>
+						</sbb-footer-column>
+						<sbb-footer-column>
+							<sbb-footer-column-title columntitle='Über die SBB'></sbb-footer-column-title>
+							<sbb-footer-column-link-list>
+								<sbb-footer-column-link-list-item label='Unternehmen' href='https://company.sbb.ch/de/home.html'></sbb-footer-column-link-list-item>
+								<sbb-footer-column-link-list-item label='SBB Immobilien' href='https://company.sbb.ch/de/immobilien.html'></sbb-footer-column-link-list-item>
+								<sbb-footer-column-link-list-item label='SBB Cargo' href='http://company.sbb.ch/de/home.html'></sbb-footer-column-link-list-item>
+								<sbb-footer-column-link-list-item label='Jobs & Karriere' href='http://company.sbb.ch/de/home.html'></sbb-footer-column-link-list-item>
+								<sbb-footer-column-link-list-item label='Medien & Dossiers' href='http://company.sbb.ch/de/home.html'></sbb-footer-column-link-list-item>
+							</sbb-footer-column-link-list>
+						</sbb-footer-column>
+					</sbb-footer-columns>
+
+					<sbb-language-selector language={this.props.language} ref={this.footerRef}></sbb-language-selector>
+					<sbb-footer-links-bottom></sbb-footer-links-bottom>
+				</sbb-footer>
 			</div>
 		);
 	}
@@ -58,7 +135,12 @@ class App extends Component {
 
 App.propTypes = {
 	language: PropTypes.string,
-	setLanguage: PropTypes.func
+	setLanguage: PropTypes.func,
+	setResults: PropTypes.func,
+	setTitleFrom: PropTypes.func,
+	setTitleTo: PropTypes.func,
+	titleFrom: PropTypes.string,
+	titleTo: PropTypes.string
 };
 
 export default App;
