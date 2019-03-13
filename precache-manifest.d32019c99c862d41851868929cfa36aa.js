@@ -4,8 +4,8 @@ self.__precacheManifest = [
     "url": "/webcomponent-react-redux/static/js/48.0e3b98a3.chunk.js"
   },
   {
-    "revision": "b37db7886b8d9f01c6f4",
-    "url": "/webcomponent-react-redux/static/js/main.b37db788.chunk.js"
+    "revision": "ba1210f837707509d8ff",
+    "url": "/webcomponent-react-redux/static/js/main.ba1210f8.chunk.js"
   },
   {
     "revision": "99ddc679e571bb798403add6a008be52",
@@ -384,7 +384,7 @@ self.__precacheManifest = [
     "url": "/webcomponent-react-redux/static/js/10.263df1e9.chunk.js"
   },
   {
-    "revision": "08cf1f102308ad02a7c3a710d70619e6",
+    "revision": "679437a64b8aed3e7f3bd3cc81e3172e",
     "url": "/webcomponent-react-redux/index.html"
   }
 ];
