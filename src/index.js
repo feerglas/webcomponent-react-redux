@@ -5,6 +5,7 @@ import AppContainer from './AppContainer';
 import storeFactory from './model/store/store';
 import defaultState from './model/store/defaultState';
 import { defineCustomElements } from '@stauffacher/sbbpoc/dist/loader';
+import * as serviceWorker from './serviceWorker';
 
 let store = storeFactory(defaultState);
 
@@ -16,3 +17,5 @@ ReactDOM.render(
 );
 
 defineCustomElements(window);
+
+serviceWorker.register();
