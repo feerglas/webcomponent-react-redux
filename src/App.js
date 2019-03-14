@@ -15,6 +15,9 @@ class App extends Component {
 		this.timetableResultsRef = React.createRef();
 		this.CancelToken = axios.CancelToken;
 		this.cancelRequest = false;
+		this.state = {
+			loading: false
+		};
 	}
 
 	componentDidMount() {
@@ -32,8 +35,12 @@ class App extends Component {
 	}
 
 	handleSearch(from, to) {
-		this.cancelRequest && this.cancelRequest();
 
+		this.setState({
+			loading: true
+		});
+
+		this.cancelRequest && this.cancelRequest();
 		axios
 			.get(`https://global-warmer.com/sbb/from/${from.id}/to/${to.id}`, {
 				cancelToken: this.CancelToken(function executor (c) {
@@ -42,6 +49,10 @@ class App extends Component {
 			})
 			.then((res) => {
 
+				this.setState({
+					loading: false
+				});
+
 				if (!res.data && !res.data.trips) {
 					return;
 				}
@@ -49,9 +60,11 @@ class App extends Component {
 				this.props.setResults(res.data.trips);
 				this.props.setTitleFrom(from.label);
 				this.props.setTitleTo(to.label);
-
 			})
 			.catch((err) => {
+				this.setState({
+					loading: false
+				});
 				console.log('Error requesting Trips: ', err);
 			});
 
@@ -66,6 +79,8 @@ class App extends Component {
 				<sbb-pagetitle additional-classes='var_centered' visuallyhidden='true' page-title='Startseite sbb.ch'></sbb-pagetitle>
 
 				<TimetableSearch searchCallback={this.handleSearch.bind(this)} />
+
+				<sbb-loader show={this.state.loading}></sbb-loader>
 
 				<sbb-timetable-results-title
 					from={this.props.titleFrom}
