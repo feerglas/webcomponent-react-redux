@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import AppContainer from './AppContainer';
 import storeFactory from './model/store/store';
 import defaultState from './model/store/defaultState';
-import { defineCustomElements } from '@stauffacher/sbbpoc/dist/loader';
+import { defineCustomElements } from 'feerglassbbpoc/dist/loader';
 import * as serviceWorker from './serviceWorker';
 
 let store = storeFactory(defaultState);
