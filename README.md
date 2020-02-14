@@ -9,3 +9,9 @@ This sample App shows how a custom web component can be integrated and used in r
 2. nvm use
 3. npm install
 4. npm start
+
+# CI & CD
+
+Build and deployed on Netlify.
+
+https://frosty-beaver-037295.netlify.com/
